@@ -3,11 +3,12 @@ import bcrypt from "bcrypt";
 import path from "path";
 import cors from "cors";
 import db from "./app/Config/db.js";
-import { createTicket, updateStatus, getAllTickets, getTicketById } from "./Backend/tiket.js";
+import router from "./Routes/Ticket.Routes.js";
 
 const app = express();
 app.set('view engine', 'ejs');
 app.set('views', './app/Views');
+app.use(router);
 
 app.use(cors());
 app.use(express.json());
@@ -16,11 +17,11 @@ app.use('/style', express.static(path.join(process.cwd(), 'Public', 'Style')));
 
 app.get('/dashboard', (req, res) => res.render('dashboard'));
 app.get('/login', (req, res) => res.render('login'));
-app.get('/lupa', (req, res) => res.render('lupa'));
-app.get('/daftar', (req, res) => res.render('daftar'));
+app.get('/lupa', (req, res) => res.render('forgot'));
+app.get('/daftar', (req, res) => res.render('list'));
 app.get('/routes', (req, res) => res.render('routes'));
-app.get('/book', (req, res) => res.render('book'));
-app.get('/tiket', (req, res) => res.render('ticket'));
+app.get('/booking', (req, res) => res.render('booking'));
+app.get('/ticket', (req, res) => res.render('ticket'));
 
 app.post("/register", async (req, res) => {
   try {
@@ -494,17 +495,6 @@ app.delete("/notifications/:id", async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
-
-
-app.post("/ticket", createTicket);
-app.put("/ticket/:id", updateStatus);
-app.get("/ticket", getAllTickets);
-
-app.get("/ticket/:id", getTicketById);
-
-
-
-
 
 app.listen(3000, () => {
   console.log('Server running at http://localhost:3000/dashboard');

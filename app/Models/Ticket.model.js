@@ -1,7 +1,7 @@
 import { DataTypes } from "sequelize";
 import sequelize from "../../config/db.js";
 
-const Ticket = sequelize.define(
+export const Ticket = sequelize.define(
   "Ticket",
   {
     idtickets: {
