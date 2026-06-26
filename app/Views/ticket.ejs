@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tiket Saya - Aplikasi Pemesanan Kereta</title>
+  <link rel="stylesheet" href="/style/ticket.css">
+</head>
+
+<body>
+
+  <div class="navbar">
+    <button class="back-btn" onclick="handleNavBack()">←</button>
+    <div class="logo-box">
+      <svg viewBox="0 0 24 24">
+        <path d="M4 4h16c1.1 0 2 .9 2 2v8c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+      </svg>
+    </div>
+    <h1>Tiket Saya</h1>
+    <div class="nav-right">
+      <a href="refund.html" class="btn-profile">Refund</a>
+    </div>
+  </div>
+
+  <div class="screen active" id="screen-list">
+    <div class="tiket-container">
+      <div class="tiket-header">
+        <div>
+          <h2>Tiket Saya</h2>
+          <p>Daftar pemesanan tiket kereta Anda</p>
+        </div>
+        <button class="btn-new" onclick="window.location.href='book.html'">
+          Pesan Tiket
+        </button>
+      </div>
+
+      <div id="ticketListContainer"></div>
+    </div>
+  </div>
+
+  <script>
+    const CLASS_MULTIPLIER = { Economy: 1, Business: 1.5, Executive: 2 };
+
+    function calcPrice(base, cls) {
+      return Math.round((base || 0) * (CLASS_MULTIPLIER[cls] || 1));
+    }
+
+    async function loadTickets() {
+      const userId = localStorage.getItem("user_id");
+      if (!userId) {
+        window.location.href = "login.html";
+        return [];
+      }
+
+      const res = await fetch(`http://localhost:3000/ticket/user/${userId}`);
+      const data = await res.json();
+
+      return data.map(t => {
+        const total = calcPrice(t.price, t.class) * (t.passengers || 1);
+
+        return {
+          rawId: t.idtickets,
+          ticketId: "TRN-" + t.idtickets,
+          name: t.name,
+          origin: t.origin,
+          destination: t.destination,
+          trainName: t.train_name,
+          date: t.date,
+          className: t.class,
+          seats: t.seat ? t.seat.split(",") : [],
+          passengers: t.passengers,
+          totalPrice: total,
+          status: t.status
+        }
+      });
+    }
+
+    function formatDate(d) {
+      return new Date(d).toLocaleDateString("id-ID");
+    }
+
+    function formatPrice(n) {
+      return "Rp " + parseInt(n).toLocaleString("id-ID");
+    }
+
+    async function renderList() {
+      const container = document.getElementById("ticketListContainer");
+      container.innerHTML = "Memuat...";
+
+      const tickets = await loadTickets();
+
+      if (tickets.length === 0) {
+        container.innerHTML = "<div class='empty-state'>Belum ada tiket</div>";
+        return;
+      }
+
+      container.innerHTML = "";
+
+      tickets.forEach(t => {
+        const el = document.createElement("div");
+        el.className = "ticket-card";
+
+        el.innerHTML = `
+          <div class="ticket-top">
+            <div class="ticket-id">${t.ticketId}</div>
+            <div class="ticket-status">Confirmed</div>
+          </div>
+
+          <div class="ticket-route">
+            <div class="station-name">${t.origin}</div>
+            <div class="route-arrow">→</div>
+            <div class="station-name">${t.destination}</div>
+          </div>
+
+          <div class="ticket-meta">
+            <div class="meta-item">
+              <label>Nama</label>
+              <span>${t.name}</span>
+            </div>
+            <div class="meta-item">
+              <label>Tanggal</label>
+              <span>${formatDate(t.date)}</span>
+            </div>
+            <div class="meta-item">
+              <label>Kelas</label>
+              <span>${t.className}</span>
+            </div>
+          </div>
+
+          <div class="ticket-footer">
+            <div class="ticket-price">${formatPrice(t.totalPrice)}</div>
+
+            <div style="display:flex; gap:10px;">
+              
+              <button class="btn-view-ticket">
+                Lihat E-Tiket
+              </button>
+
+              <button class="btn-view-ticket btn-rating"
+                onclick="goToRating(${t.rawId})">
+                ⭐ Rating
+              </button>
+
+            </div>
+          </div>
+        `;
+
+        container.appendChild(el);
+      });
+    }
+
+    function goToRating(id) {
+      localStorage.setItem("last_ticket_id", id);
+      window.location.href = `rating.html?ticket_id=${id}`;
+    }
+
+    function handleNavBack() {
+      window.location.href = "dashboard.html";
+    }
+
+    renderList();
+  </script>
+
+</body>
+
+</html>

@@ -1,0 +1,155 @@
+body {
+  margin: 0;
+  font-family: Arial;
+  background: #eaf2fb;
+}
+
+.navbar {
+  height: 70px;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 0 24px;
+  border-bottom: 1px solid #e5e7eb;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.back-btn {
+  border: none;
+  background: none;
+  font-size: 22px;
+  cursor: pointer;
+  color: #374151;
+}
+
+.menu a {
+  margin: 0 10px;
+  text-decoration: none;
+  color: #333;
+}
+
+.menu .active {
+  background: #2563eb;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 8px;
+}
+
+.login-btn {
+  background: #2563eb;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+}
+
+.container {
+  padding: 30px;
+}
+
+.header h2 {
+  color: #1e3a8a;
+}
+
+.card {
+  background: #f3f4f6;
+  padding: 20px;
+  border-radius: 15px;
+}
+
+input,
+select {
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+  align-items: end;
+}
+
+input,
+select {
+  width: 100%;
+  height: 42px;
+  padding: 0 12px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  box-sizing: border-box;
+}
+
+input[type="number"] {
+  appearance: textfield;
+}
+
+.search-btn {
+  display: flex;
+}
+
+.search-btn button {
+  width: 100%;
+  height: 42px;
+  border: none;
+  border-radius: 10px;
+  background: #7da2e3;
+  color: white;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.search-btn button:hover {
+  background: #2563eb;
+}
+
+.search-btn {
+  display: flex;
+  align-items: flex-end;
+}
+
+label {
+  font-size: 14px;
+  display: block;
+  margin-bottom: 5px;
+}
+
+input,
+select {
+  width: 100%;
+  padding: 10px;
+}
+
+.search-btn {
+  display: flex;
+  align-items: end;
+}
+
+.search-btn button {
+  width: 100%;
+  padding: 10px;
+  background: #7da2e3;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.search-btn button:hover {
+  background: #2563eb;
+}
+
+.footer {
+  background: #0f172a;
+  color: white;
+  padding: 40px;
+  margin-top: 50px;
+}
+
+.footer-content {
+  display: flex;
+  justify-content: space-between;
+}

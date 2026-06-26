@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Reset Password | Aplikasi Tiket</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      background: #dfe9f7;
+      color: #111827;
+      min-height: 100vh;
+    }
+
+    .navbar {
+      height: 70px;
+      background: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 0 24px;
+      border-bottom: 1px solid #e5e7eb;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+    }
+
+    .back-btn {
+      border: none;
+      background: none;
+      font-size: 28px;
+      cursor: pointer;
+      color: #374151;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      border-radius: 40px;
+      transition: background 0.2s;
+    }
+
+    .back-btn:hover {
+      background: #f3f4f6;
+    }
+
+    .logo-box {
+      width: 40px;
+      height: 40px;
+      background: #2563eb;
+      border-radius: 10px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .logo-box svg {
+      width: 22px;
+      fill: #fff;
+    }
+
+    .navbar h1 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #1e3a8a;
+      letter-spacing: -0.2px;
+    }
+
+    .reset-container {
+      max-width: 550px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+
+    .reset-card {
+      background: #ffffff;
+      border-radius: 28px;
+      padding: 32px 28px;
+      box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.1);
+      transition: transform 0.2s ease;
+    }
+
+    .reset-header {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    .lock-icon {
+      background: #eff6ff;
+      width: 70px;
+      height: 70px;
+      border-radius: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 16px auto;
+    }
+
+    .lock-icon svg {
+      width: 34px;
+      stroke: #2563eb;
+      stroke-width: 1.7;
+    }
+
+    .reset-header h2 {
+      font-size: 28px;
+      font-weight: 800;
+      color: #1e3a8a;
+      margin-bottom: 8px;
+    }
+
+    .reset-header p {
+      color: #6b7280;
+      font-size: 15px;
+    }
+
+    .form-group {
+      margin-bottom: 28px;
+    }
+
+    .form-group label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 600;
+      color: #1f2937;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+
+    .form-group label svg {
+      width: 18px;
+      stroke: #2563eb;
+      stroke-width: 1.8;
+      fill: none;
+    }
+
+    .input-wrapper {
+      position: relative;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 16px 18px;
+      font-size: 16px;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 18px;
+      background: #ffffff;
+      transition: all 0.2s;
+      font-family: inherit;
+      outline: none;
+      color: #111827;
+    }
+
+    .form-input:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+    }
+
+    .btn-reset {
+      width: 100%;
+      border: none;
+      background: #2563eb;
+      color: #fff;
+      padding: 14px 18px;
+      border-radius: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.05s;
+      margin-top: 8px;
+      box-shadow: 0 2px 6px rgba(37, 99, 235, 0.2);
+    }
+
+    .btn-reset:hover {
+      background: #1d4ed8;
+    }
+
+    .btn-reset:active {
+      transform: scale(0.98);
+    }
+
+    .info-note {
+      margin-top: 24px;
+      text-align: center;
+      font-size: 13px;
+      color: #6b7280;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .info-note svg {
+      width: 16px;
+      fill: none;
+      stroke: #9ca3af;
+    }
+
+    .toast {
+      position: fixed;
+      top: 90px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #111827;
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 40px;
+      font-weight: 500;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+      z-index: 200;
+      font-size: 14px;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .toast.show {
+      opacity: 1;
+    }
+
+    @media (max-width: 550px) {
+      .reset-card {
+        padding: 28px 20px;
+      }
+
+      .reset-header h2 {
+        font-size: 24px;
+      }
+
+      .form-input {
+        padding: 14px 16px;
+      }
+
+      .navbar h1 {
+        font-size: 18px;
+      }
+    }
+
+    .loading {
+      opacity: 0.7;
+      pointer-events: none;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="navbar">
+    <button class="back-btn" onclick="window.location.href='login.html'">&larr;</button>
+    <div class="logo-box">
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="white">
+        <path
+          d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 4c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2zm0 13c-2.33 0-4.31-1.46-5.11-3.5h10.22c-.8 2.04-2.78 3.5-5.11 3.5z" />
+      </svg>
+    </div>
+    <h1>Reset Password</h1>
+  </div>
+
+  <div class="reset-container">
+    <div class="reset-card">
+      <div class="reset-header">
+        <div class="lock-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+            stroke-linejoin="round">
+            <rect x="5" y="11" width="14" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+        </div>
+        <h2>Buat kata sandi baru</h2>
+        <p>Masukkan password baru untuk akun Anda</p>
+      </div>
+
+      <<form id="resetForm" onsubmit="resetPass(event)">
+        <div class="form-group">
+          <label>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M12 2C8.13 2 5 5.13 5 9v4c0 3.87 3.13 7 7 7s7-3.13 7-7V9c0-3.87-3.13-7-7-7z"></path>
+              <path d="M12 22v-4"></path>
+            </svg>
+            Password baru
+          </label>
+          <div class="input-wrapper">
+            <input type="password" id="pass" class="form-input" placeholder="Minimal 6 karakter" required
+              autocomplete="new-password">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M12 2C8.13 2 5 5.13 5 9v4c0 3.87 3.13 7 7 7s7-3.13 7-7V9c0-3.87-3.13-7-7-7z"></path>
+              <path d="M12 22v-4"></path>
+            </svg>
+            Konfirmasi Password
+          </label>
+          <div class="input-wrapper">
+            <input type="password" id="confirmPass" class="form-input" placeholder="Ulangi password baru" required
+              autocomplete="new-password">
+          </div>
+        </div>
+
+        <button type="submit" class="btn-reset">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+            <polyline points="17 21 17 13 7 13 7 21"></polyline>
+            <polyline points="7 3 7 8 15 8"></polyline>
+          </svg>
+          Simpan & Lanjutkan
+        </button>
+        </form>
+
+        <div class="info-note">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="1.8">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="16" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+          </svg>
+          <span>Password akan dienkripsi & disimpan dengan aman</span>
+        </div>
+    </div>
+  </div>
+
+  <div id="toastMsg" class="toast">
+    <span>🔐</span> <span id="toastText">Pesan</span>
+  </div>
+
+  <script>
+    function showToast(message, isError = false) {
+      const toastEl = document.getElementById('toastMsg');
+      const textSpan = document.getElementById('toastText');
+      textSpan.innerText = message;
+
+      if (isError) {
+        toastEl.style.background = '#b91c1c';
+      } else {
+        toastEl.style.background = '#111827';
+      }
+      toastEl.classList.add('show');
+      setTimeout(() => {
+        toastEl.classList.remove('show');
+        toastEl.style.background = '#111827';
+      }, 3000);
+    }
+
+    async function resetPass(e) {
+      e.preventDefault();
+
+      const passwordInput = document.getElementById("pass");
+      const password = passwordInput.value.trim();
+
+      if (password.length < 6) {
+        showToast("Password minimal 6 karakter", true);
+        return;
+      }
+
+      const email = localStorage.getItem("reset_email");
+
+      if (!email || email === "") {
+        showToast("Sesi tidak valid. Silakan ulangi dari lupa password.", true);
+        setTimeout(() => {
+          window.location.href = "forgot-password.html";
+        }, 1500);
+        return;
+      }
+
+      const submitBtn = document.querySelector('.btn-reset');
+      const originalText = submitBtn.innerHTML;
+      submitBtn.innerHTML = '<span>⏳</span> Memproses...';
+      submitBtn.disabled = true;
+      submitBtn.classList.add('loading');
+
+      try {
+        const res = await fetch("http://localhost:3000/reset-password", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ email, password })
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+          showToast(data.message || "Password berhasil direset! Mengalihkan ke login...");
+          localStorage.removeItem("reset_email");
+          setTimeout(() => {
+            window.location.href = "login.html";
+          }, 1500);
+        } else {
+          showToast(data.message || "Gagal mereset password, coba lagi", true);
+          submitBtn.innerHTML = originalText;
+          submitBtn.disabled = false;
+          submitBtn.classList.remove('loading');
+        }
+      } catch (error) {
+        console.error("Network error:", error);
+        showToast("Koneksi gagal, periksa server atau jaringan", true);
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+        submitBtn.classList.remove('loading');
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const storedEmail = localStorage.getItem("reset_email");
+      if (!storedEmail) {
+        setTimeout(() => {
+          showToast("Perhatian: email untuk reset tidak ditemukan. Ulangi dari lupa password.", true);
+        }, 500);
+      }
+    });
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Notifikasi - Aktivitas Akun & Perjalanan</title>
+  <link rel="stylesheet" href="/style/notification.css">
+</head>
+
+<body>
+
+  <div class="navbar">
+    <button class="back-btn" onclick="window.location.href='dashboard.html'">←</button>
+    <div class="logo-box">
+      <svg viewBox="0 0 24 24" fill="currentColor">
+        <path
+          d="M4 4h16c1.1 0 2 .9 2 2v8c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2zm0 2v8h16V6H4zm2 9h2v2H6v-2zm10 0h2v2h-2v-2zM8 8h8v4H8V8z" />
+      </svg>
+    </div>
+    <h1>Notifikasi</h1>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <div class="notif-container">
+    <div class="notif-header">
+      <div class="notif-header-left">
+        <h2>Notifikasi</h2>
+        <p>Aktivitas akun & informasi perjalanan Anda</p>
+      </div>
+      <button class="btn-mark-all" onclick="markAllRead()">
+        ✓ Tandai Semua Dibaca
+      </button>
+    </div>
+
+    <div class="filter-tabs" id="filterTabs">
+      <button class="tab-btn active" data-filter="all" onclick="setFilter('all', this)">
+        Semua <span class="tab-count" id="count-all">0</span>
+      </button>
+      <button class="tab-btn" data-filter="unread" onclick="setFilter('unread', this)">
+        Belum Dibaca <span class="tab-count" id="count-unread">0</span>
+      </button>
+      <button class="tab-btn" data-filter="login" onclick="setFilter('login', this)">
+        Login <span class="tab-count" id="count-login">0</span>
+      </button>
+      <button class="tab-btn" data-filter="reset_password" onclick="setFilter('reset_password', this)">
+        Reset Password <span class="tab-count" id="count-reset">0</span>
+      </button>
+      <button class="tab-btn" data-filter="payment" onclick="setFilter('payment', this)">
+        Pembayaran <span class="tab-count" id="count-payment">0</span>
+      </button>
+    </div>
+
+    <div id="notifList"></div>
+  </div>
+
+  <script>
+    const API_BASE = 'http://localhost:3000';
+    let USER_ID = null;
+    let allNotifs = [];
+    let currentFilter = 'all';
+
+    function getUserId() {
+      const stored = localStorage.getItem('user_id');
+      if (stored) return parseInt(stored);
+      return null;
+    }
+
+    const ICONS = {
+      check: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17L4 12"/></svg>`,
+      lock: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`,
+      ticket: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 8h20"/></svg>`,
+      clock: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>`,
+      info: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>`
+    };
+
+    function timeAgo(timestamp) {
+      const diff = Date.now() - timestamp;
+      const minutes = Math.floor(diff / 60000);
+      const hours = Math.floor(diff / 3600000);
+      const days = Math.floor(diff / 86400000);
+
+      if (minutes < 1) return 'Baru saja';
+      if (minutes < 60) return `${minutes} menit yang lalu`;
+      if (hours < 24) return `${hours} jam yang lalu`;
+      if (days === 1) return 'Kemarin';
+      return `${days} hari yang lalu`;
+    }
+
+    function groupByDate(notifs) {
+      const groups = {};
+      const today = new Date(); today.setHours(0, 0, 0, 0);
+      const yesterday = new Date(today); yesterday.setDate(today.getDate() - 1);
+
+      notifs.forEach(n => {
+        const d = new Date(n.created_at);
+        let label;
+        if (d >= today) label = 'Hari Ini';
+        else if (d >= yesterday) label = 'Kemarin';
+        else label = d.toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
+
+        if (!groups[label]) groups[label] = [];
+        groups[label].push(n);
+      });
+      return groups;
+    }
+
+    async function fetchNotifications() {
+      if (!USER_ID) return;
+
+      try {
+        let url = `${API_BASE}/notifications/${USER_ID}`;
+        if (currentFilter !== 'all' && currentFilter !== 'unread') {
+          url += `?filter=${currentFilter}`;
+        } else if (currentFilter === 'unread') {
+          url += `?filter=unread`;
+        }
+
+        const res = await fetch(url);
+        if (res.ok) {
+          allNotifs = await res.json();
+          render();
+        }
+      } catch (err) {
+        console.error('Fetch notif error:', err);
+      }
+    }
+
+    async function markAsRead(notifId) {
+      try {
+        await fetch(`${API_BASE}/notifications/${notifId}/read`, { method: 'PUT' });
+        const notif = allNotifs.find(n => n.id === notifId);
+        if (notif) notif.is_read = true;
+        render();
+      } catch (err) {
+        console.error('Mark read error:', err);
+      }
+    }
+
+    async function markAllRead() {
+      if (!USER_ID) return;
+      try {
+        await fetch(`${API_BASE}/notifications/user/${USER_ID}/read-all`, { method: 'PUT' });
+        allNotifs.forEach(n => n.is_read = true);
+        render();
+        showToast('Semua notifikasi ditandai dibaca');
+      } catch (err) {
+        console.error('Mark all read error:', err);
+      }
+    }
+
+    function updateCounts(notifs) {
+      document.getElementById('count-all').textContent = notifs.length;
+      document.getElementById('count-unread').textContent = notifs.filter(n => !n.is_read).length;
+      document.getElementById('count-login').textContent = notifs.filter(n => n.type === 'login').length;
+      document.getElementById('count-reset').textContent = notifs.filter(n => n.type === 'reset_password').length;
+      document.getElementById('count-payment').textContent = notifs.filter(n => n.type === 'payment').length;
+    }
+
+    function render() {
+      let filtered = allNotifs;
+      if (currentFilter === 'unread') {
+        filtered = allNotifs.filter(n => !n.is_read);
+      } else if (currentFilter !== 'all') {
+        filtered = allNotifs.filter(n => n.type === currentFilter);
+      }
+
+      updateCounts(allNotifs);
+
+      const listEl = document.getElementById('notifList');
+
+      if (filtered.length === 0) {
+        listEl.innerHTML = `
+        <div class="empty-state">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/>
+          </svg>
+          <h3>Tidak ada notifikasi</h3>
+          <p>Belum ada notifikasi untuk kategori ini.</p>
+        </div>`;
+        return;
+      }
+
+      const groups = groupByDate(filtered);
+      listEl.innerHTML = '';
+
+      Object.entries(groups).forEach(([label, items]) => {
+        const sectionDiv = document.createElement('div');
+        sectionDiv.innerHTML = `<div class="section-label">${label}</div>`;
+        listEl.appendChild(sectionDiv);
+
+        items.forEach(notif => {
+          const card = document.createElement('div');
+          card.className = `notif-card ${!notif.is_read ? 'unread' : ''}`;
+
+          const date = new Date(notif.created_at);
+          const iconName = notif.icon || (notif.type === 'login' ? 'check' : notif.type === 'reset_password' ? 'lock' : 'info');
+          const iconSvg = ICONS[iconName] || ICONS.info;
+          const colorClass = notif.color || (notif.type === 'login' ? 'green' : notif.type === 'reset_password' ? 'amber' : 'blue');
+
+          card.innerHTML = `
+          <div class="notif-bar ${colorClass}"></div>
+          <div class="notif-body">
+            <div class="notif-icon ${colorClass}">${iconSvg}</div>
+            <div class="notif-content">
+              <div class="notif-title-row">
+                <span class="notif-title">${escapeHtml(notif.title)}</span>
+                ${!notif.is_read ? '<span class="badge-new">Baru</span>' : ''}
+              </div>
+              <div class="notif-msg">${escapeHtml(notif.message)}</div>
+              <div class="notif-time">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
+                </svg>
+                ${timeAgo(notif.timestamp || date.getTime())}
+              </div>
+            </div>
+            <div class="unread-dot"></div>
+          </div>
+        `;
+
+          if (!notif.is_read) {
+            card.onclick = () => markAsRead(notif.id);
+          }
+
+          listEl.appendChild(card);
+        });
+      });
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return str.replace(/[&<>]/g, function (m) {
+        if (m === '&') return '&amp;';
+        if (m === '<') return '&lt;';
+        if (m === '>') return '&gt;';
+        return m;
+      });
+    }
+
+    function setFilter(filter, btn) {
+      currentFilter = filter;
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      fetchNotifications();
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+    (function init() {
+      USER_ID = getUserId();
+      if (!USER_ID) {
+        document.getElementById('notifList').innerHTML = `
+        <div class="empty-state">
+          <h3>⚠️ Silakan login terlebih dahulu</h3>
+          <p>Anda harus login untuk melihat notifikasi</p>
+        </div>`;
+        return;
+      }
+      fetchNotifications();
+      setInterval(() => fetchNotifications(), 30000);
+    })();
+  </script>
+</body>
+
+</html>

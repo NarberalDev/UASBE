@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Cari Tiket</title>
+  <link rel="stylesheet" href="/style/searchTicket.css">
+</head>
+
+<body>
+
+  <div class="navbar">
+    <button class="back-btn" id="navBack" onclick="window.location.href='/dashboard'">←</button>
+    <div class="logo-box">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path
+          d="M4 4h16c1.1 0 2 .9 2 2v8c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2zm0 2v8h16V6H4zm2 9h2v2H6v-2zm10 0h2v2h-2v-2zM8 8h8v4H8V8z" />
+      </svg>
+    </div>
+    <h1 id="navTitle">Cari Tiket</h1>
+  </div>
+
+  <div class="container">
+
+    <div class="header">
+      <h2>Cari Jadwal Kereta</h2>
+      <p>Temukan kereta yang sesuai dengan rencana perjalanan Anda</p>
+    </div>
+
+    <div class="card">
+
+      <h3>🔍 Filter Pencarian</h3>
+
+      <div class="grid">
+
+        <div>
+          <label>Stasiun Asal</label>
+          <select>
+            <option>Pilih asal</option>
+            <option>Medan</option>
+            <option>Tebing Tinggi</option>
+            <option>Pematang Siantar</option>
+          </select>
+        </div>
+
+        <div>
+          <label>Stasiun Tujuan</label>
+          <select>
+            <option>Pilih tujuan</option>
+            <option>Medan</option>
+            <option>Tebing Tinggi</option>
+            <option>Pematang Siantar</option>
+          </select>
+        </div>
+
+        <div>
+          <label>Tanggal</label>
+          <input type="date">
+        </div>
+
+        <div>
+          <label>Penumpang</label>
+          <input type="number" value="1" min="1">
+        </div>
+
+        <div class="search-btn">
+          <button onclick="goSearch()">Cari</button>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  </div>
+
+  <script>
+    function goSearch() {
+      alert("Fitur pencarian belum dihubungkan ke backend 😄");
+    }
+  </script>
+
+</body>
+
+</html>

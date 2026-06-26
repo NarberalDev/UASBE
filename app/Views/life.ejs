@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Live Status Kereta</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&family=Figtree:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet">
+  <style>
+    .live-status-section {
+      margin-top: 40px;
+    }
+
+    .live-section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .live-section-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .live-section-title h2 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: #0A1628;
+    }
+
+    .live-dot-wrap {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: #FEF2F2;
+      border: 1px solid #FECACA;
+      border-radius: 20px;
+      padding: 4px 10px 4px 8px;
+    }
+
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #EF4444;
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    .live-dot::before {
+      content: '';
+      position: absolute;
+      inset: -3px;
+      border-radius: 50%;
+      background: rgba(239, 68, 68, 0.3);
+      animation: livePulse 1.6s ease-in-out infinite;
+    }
+
+    @keyframes livePulse {
+
+      0%,
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+
+      50% {
+        transform: scale(1.8);
+        opacity: 0;
+      }
+    }
+
+    .live-dot-wrap span {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.72rem;
+      font-weight: 500;
+      color: #EF4444;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .last-updated {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.72rem;
+      color: #94A3B8;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .last-updated svg {
+      width: 12px;
+      height: 12px;
+    }
+
+    .status-filters {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .sf-chip {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      background: #fff;
+      border: 1.5px solid #E2E8F0;
+      border-radius: 30px;
+      padding: 5px 14px;
+      font-family: 'Figtree', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #475569;
+      cursor: pointer;
+      transition: all 0.18s;
+    }
+
+    .sf-chip.active {
+      background: #0A1628;
+      border-color: #0A1628;
+      color: #fff;
+    }
+
+    .sf-chip:not(.active):hover {
+      border-color: #1A56DB;
+      color: #1A56DB;
+    }
+
+    .sf-chip .chip-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+    }
+
+    .sf-chip .chip-dot.green {
+      background: #10B981;
+    }
+
+    .sf-chip .chip-dot.amber {
+      background: #F59E0B;
+    }
+
+    .sf-chip .chip-dot.red {
+      background: #EF4444;
+    }
+
+    .train-card {
+      background: #fff;
+      border: 1px solid #E2E8F0;
+      border-radius: 16px;
+      overflow: hidden;
+      margin-bottom: 14px;
+      box-shadow: 0 2px 12px rgba(10, 22, 40, 0.07);
+      transition: box-shadow 0.2s, transform 0.2s;
+      animation: cardIn 0.4s ease both;
+    }
+
+    .train-card:hover {
+      box-shadow: 0 8px 32px rgba(10, 22, 40, 0.13);
+      transform: translateY(-2px);
+    }
+
+    @keyframes cardIn {
+      from {
+        opacity: 0;
+        transform: translateY(16px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .train-card-top {
+      padding: 18px 22px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      border-bottom: 1px solid #F1F5F9;
+    }
+
+    .train-name-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .train-icon {
+      width: 36px;
+      height: 36px;
+      background: #EFF6FF;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #1A56DB;
+      flex-shrink: 0;
+    }
+
+    .train-icon svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .train-name {
+      font-family: 'Syne', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      color: #0A1628;
+    }
+
+    .train-type-tag {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.68rem;
+      color: #94A3B8;
+      background: #F1F5F9;
+      border-radius: 6px;
+      padding: 2px 8px;
+      margin-top: 2px;
+      display: inline-block;
+    }
+
+    .status-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 20px;
+      padding: 5px 12px;
+      font-family: 'Figtree', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .status-badge svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    .status-badge.ontime {
+      background: #ECFDF5;
+      color: #059669;
+      border: 1px solid #A7F3D0;
+    }
+
+    .status-badge.delayed {
+      background: #FFFBEB;
+      color: #D97706;
+      border: 1px solid #FDE68A;
+    }
+
+    .status-badge.cancel {
+      background: #FEF2F2;
+      color: #DC2626;
+      border: 1px solid #FECACA;
+    }
+
+    .status-badge.boarding {
+      background: #EFF6FF;
+      color: #1D4ED8;
+      border: 1px solid #BFDBFE;
+    }
+
+    .train-card-body {
+      padding: 16px 22px 18px;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 14px 20px;
+    }
+
+    .info-cell label {
+      font-size: 0.72rem;
+      color: #94A3B8;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      margin-bottom: 4px;
+      font-family: 'DM Mono', monospace;
+    }
+
+    .info-cell label svg {
+      width: 12px;
+      height: 12px;
+    }
+
+    .info-cell .val {
+      font-family: 'Figtree', sans-serif;
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: #0F172A;
+    }
+
+    .info-cell .val.blue {
+      color: #1A56DB;
+    }
+
+    .info-cell .val.amber {
+      color: #D97706;
+    }
+
+    .info-cell .val.green {
+      color: #059669;
+    }
+
+    .info-cell .val.red {
+      color: #DC2626;
+    }
+
+    .delay-tag {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.72rem;
+      font-weight: 500;
+      color: #D97706;
+      margin-left: 6px;
+    }
+
+    .progress-wrap {
+      padding: 0 22px 18px;
+    }
+
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .progress-label span {
+      font-family: 'Figtree', sans-serif;
+      font-size: 0.78rem;
+      color: #94A3B8;
+    }
+
+    .progress-label .pct {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #0A1628;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 8px;
+      background: #F1F5F9;
+      border-radius: 99px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .progress-fill {
+      height: 100%;
+      border-radius: 99px;
+      transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+    }
+
+    .progress-fill.green {
+      background: linear-gradient(90deg, #10B981, #34D399);
+    }
+
+    .progress-fill.amber {
+      background: linear-gradient(90deg, #F59E0B, #FCD34D);
+    }
+
+    .progress-fill.blue {
+      background: linear-gradient(90deg, #1A56DB, #60A5FA);
+    }
+
+    .progress-fill.red {
+      background: linear-gradient(90deg, #EF4444, #FCA5A5);
+    }
+
+
+    .progress-fill.active-shimmer::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 40px;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+      animation: shimmer 1.8s ease-in-out infinite;
+    }
+
+    @keyframes shimmer {
+      0% {
+        transform: translateX(-40px);
+        opacity: 0;
+      }
+
+      50% {
+        opacity: 1;
+      }
+
+      100% {
+        transform: translateX(40px);
+        opacity: 0;
+      }
+    }
+
+
+    .progress-stations {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 6px;
+    }
+
+    .progress-stations span {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      color: #94A3B8;
+    }
+
+
+    .skeleton-card {
+      background: #fff;
+      border: 1px solid #E2E8F0;
+      border-radius: 16px;
+      padding: 20px 22px;
+      margin-bottom: 14px;
+    }
+
+    .skel {
+      background: linear-gradient(90deg, #F1F5F9 25%, #E2E8F0 50%, #F1F5F9 75%);
+      background-size: 200% 100%;
+      border-radius: 6px;
+      animation: skelShimmer 1.4s ease-in-out infinite;
+    }
+
+    @keyframes skelShimmer {
+      0% {
+        background-position: 200% 0;
+      }
+
+      100% {
+        background-position: -200% 0;
+      }
+    }
+
+
+    .status-empty {
+      text-align: center;
+      padding: 48px 20px;
+      color: #94A3B8;
+    }
+
+    .status-empty svg {
+      width: 48px;
+      height: 48px;
+      margin-bottom: 12px;
+      opacity: 0.35;
+    }
+
+    .status-empty p {
+      font-size: 0.88rem;
+    }
+
+
+    .next-update {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.68rem;
+      color: #CBD5E1;
+      text-align: center;
+      margin-top: 10px;
+    }
+
+    @media (max-width: 640px) {
+      .train-card-body {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .live-section-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+  </style>
+</head>
+
+<body style="background:#F1F5F9;padding:32px 24px;font-family:'Figtree',sans-serif;">
+  <section class="live-status-section" id="liveStatusSection">
+
+    <div class="live-section-header">
+      <div class="live-section-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#0A1628" stroke-width="2" width="22" height="22">
+          <path
+            d="M4 4h16c1.1 0 2 .9 2 2v8c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2zm0 2v8h16V6H4zm2 9h2v2H6v-2zm10 0h2v2h-2v-2zM8 8h8v4H8V8z" />
+        </svg>
+        <h2>Status Kereta Real-Time</h2>
+        <div class="live-dot-wrap">
+          <div class="live-dot"></div>
+          <span>Live</span>
+        </div>
+      </div>
+      <div class="last-updated" id="lastUpdated">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10" />
+          <path d="M12 6v6l4 2" />
+        </svg>
+        Memuat...
+      </div>
+    </div>
+
+    <div class="status-filters">
+      <div class="sf-chip active" data-filter="all" onclick="setStatusFilter('all', this)">Semua</div>
+      <div class="sf-chip" data-filter="ontime" onclick="setStatusFilter('ontime', this)">
+        <div class="chip-dot green"></div> Tepat Waktu
+      </div>
+      <div class="sf-chip" data-filter="delayed" onclick="setStatusFilter('delayed', this)">
+        <div class="chip-dot amber"></div> Terlambat
+      </div>
+      <div class="sf-chip" data-filter="boarding" onclick="setStatusFilter('boarding', this)">
+        <div class="chip-dot green" style="background:#1A56DB"></div> Boarding
+      </div>
+      <div class="sf-chip" data-filter="cancel" onclick="setStatusFilter('cancel', this)">
+        <div class="chip-dot red"></div> Dibatalkan
+      </div>
+    </div>
+
+    <div id="trainStatusList"></div>
+
+    <div class="next-update" id="nextUpdateLabel"></div>
+
+  </section>
+
+  <script>
+    const ROUTES = [
+      { train: 'Kereta Express 101', origin: 'Medan', destination: 'Tebing Tinggi', dep: '08:00', arr: '09:30', dur: '1h 30m', base: 50000 },
+      { train: 'Kereta Express 102', origin: 'Medan', destination: 'Pematang Siantar', dep: '09:00', arr: '11:45', dur: '2h 45m', base: 75000 },
+      { train: 'Kereta Lokal 201', origin: 'Tebing Tinggi', destination: 'Pematang Siantar', dep: '10:00', arr: '11:15', dur: '1h 15m', base: 35000 },
+      { train: 'Kereta Express 103', origin: 'Pematang Siantar', destination: 'Medan', dep: '14:00', arr: '16:45', dur: '2h 45m', base: 75000 },
+      { train: 'Kereta Lokal 202', origin: 'Pematang Siantar', destination: 'Tebing Tinggi', dep: '15:00', arr: '16:15', dur: '1h 15m', base: 35000 },
+      { train: 'Kereta Express 104', origin: 'Tebing Tinggi', destination: 'Medan', dep: '17:00', arr: '18:30', dur: '1h 30m', base: 50000 },
+      { train: 'Kereta Lokal 203', origin: 'Medan', destination: 'Kisaran', dep: '07:00', arr: '09:30', dur: '2h 30m', base: 55000 },
+      { train: 'Kereta Express 105', origin: 'Medan', destination: 'Rantau Prapat', dep: '06:00', arr: '09:15', dur: '3h 15m', base: 90000 },
+      { train: 'Kereta Lokal 204', origin: 'Kisaran', destination: 'Medan', dep: '11:00', arr: '13:30', dur: '2h 30m', base: 55000 },
+      { train: 'Kereta Express 106', origin: 'Rantau Prapat', destination: 'Medan', dep: '12:00', arr: '15:15', dur: '3h 15m', base: 90000 },
+      { train: 'Kereta Lokal 205', origin: 'Kisaran', destination: 'Rantau Prapat', dep: '10:00', arr: '11:00', dur: '1h 00m', base: 25000 },
+      { train: 'Kereta Lokal 206', origin: 'Rantau Prapat', destination: 'Kisaran', dep: '13:00', arr: '14:00', dur: '1h 00m', base: 25000 },
+      { train: 'Kereta Lokal 207', origin: 'Tebing Tinggi', destination: 'Kisaran', dep: '08:30', arr: '10:00', dur: '1h 30m', base: 40000 },
+      { train: 'Kereta Lokal 208', origin: 'Kisaran', destination: 'Pematang Siantar', dep: '09:00', arr: '10:15', dur: '1h 15m', base: 30000 },
+    ];
+
+    const WAYPOINTS = {
+      'Medan→Tebing Tinggi': ['Medan', 'Lubuk Pakam', 'Tg. Morawa', 'Tebing Tinggi'],
+      'Medan→Pematang Siantar': ['Medan', 'Tebing Tinggi', 'Sei Rampah', 'P. Siantar'],
+      'Tebing Tinggi→Pematang Siantar': ['Tb. Tinggi', 'Perdagangan', 'P. Siantar'],
+      'Pematang Siantar→Medan': ['P. Siantar', 'Sei Rampah', 'Tebing Tinggi', 'Medan'],
+      'Pematang Siantar→Tebing Tinggi': ['P. Siantar', 'Perdagangan', 'Tb. Tinggi'],
+      'Tebing Tinggi→Medan': ['Tb. Tinggi', 'Tg. Morawa', 'Lubuk Pakam', 'Medan'],
+      'Medan→Kisaran': ['Medan', 'Tebing Tinggi', 'Lima Puluh', 'Kisaran'],
+      'Medan→Rantau Prapat': ['Medan', 'Kisaran', 'Aek Nabara', 'Rantau Prapat'],
+      'Kisaran→Medan': ['Kisaran', 'Lima Puluh', 'Tb. Tinggi', 'Medan'],
+      'Rantau Prapat→Medan': ['Rantau Prapat', 'Aek Nabara', 'Kisaran', 'Medan'],
+      'Kisaran→Rantau Prapat': ['Kisaran', 'Aek Nabara', 'Rantau Prapat'],
+      'Rantau Prapat→Kisaran': ['Rantau Prapat', 'Aek Nabara', 'Kisaran'],
+      'Tebing Tinggi→Kisaran': ['Tb. Tinggi', 'Lima Puluh', 'Kisaran'],
+      'Kisaran→Pematang Siantar': ['Kisaran', 'Lima Puluh', 'P. Siantar'],
+    };
+
+    function timeToMinutes(str) {
+      const [h, m] = str.split(':').map(Number);
+      return h * 60 + m;
+    }
+
+    function nowMinutes() {
+      const n = new Date();
+      return n.getHours() * 60 + n.getMinutes();
+    }
+
+    const delaySeeds = {};
+    function getDelayForTrain(trainName) {
+      if (delaySeeds[trainName] !== undefined) return delaySeeds[trainName];
+      const r = Math.random();
+      let status, delayMin = 0;
+      if (r < 0.60) { status = 'ontime'; }
+      else if (r < 0.90) { status = 'delayed'; delayMin = [5, 10, 15, 20, 25, 30][Math.floor(Math.random() * 6)]; }
+      else if (r < 0.95) { status = 'boarding'; }
+      else { status = 'cancel'; }
+      delaySeeds[trainName] = { status, delayMin };
+      return delaySeeds[trainName];
+    }
+
+    function getTrainLiveData(route) {
+      const depMin = timeToMinutes(route.dep);
+      const arrMin = timeToMinutes(route.arr);
+      const now = nowMinutes();
+      const { status: baseStatus, delayMin } = getDelayForTrain(route.train);
+
+      let status = baseStatus;
+      let pct = 0;
+      let locationLabel = '';
+      const routeKey = `${route.origin}→${route.destination}`;
+      const waypoints = WAYPOINTS[routeKey] || [route.origin, route.destination];
+
+      if (status === 'cancel') {
+        pct = 0;
+        locationLabel = 'Dibatalkan';
+      } else if (now < depMin - 30) {
+        status = 'ontime';
+        pct = 0;
+        locationLabel = `Di Stasiun ${route.origin}`;
+      } else if (now >= depMin - 30 && now < depMin) {
+        status = baseStatus === 'cancel' ? 'cancel' : 'boarding';
+        pct = 0;
+        locationLabel = `Boarding – Stasiun ${route.origin}`;
+      } else if (now >= depMin && now <= arrMin + delayMin) {
+        const duration = arrMin - depMin;
+        const elapsed = now - depMin;
+        pct = Math.min(99, Math.round((elapsed / duration) * 100));
+        const wpIdx = Math.min(waypoints.length - 2, Math.floor((pct / 100) * (waypoints.length - 1)));
+        const nextWp = waypoints[Math.min(wpIdx + 1, waypoints.length - 1)];
+        locationLabel = `Mendekati ${nextWp}`;
+      } else {
+        status = 'ontime';
+        pct = 100;
+        locationLabel = `Tiba di ${route.destination}`;
+      }
+
+      const effArr = arrMin + delayMin;
+      const effArrStr = `${String(Math.floor(effArr / 60)).padStart(2, '0')}:${String(effArr % 60).padStart(2, '0')}`;
+
+      return { status, pct, locationLabel, delayMin, effArrStr, waypoints };
+    }
+    let currentFilter = 'all';
+    let countdown = 30;
+    let countdownTimer = null;
+
+    function setStatusFilter(filter, el) {
+      currentFilter = filter;
+      document.querySelectorAll('.sf-chip').forEach(c => c.classList.remove('active'));
+      el.classList.add('active');
+      renderStatus();
+    }
+
+    const STATUS_META = {
+      ontime: { label: 'Tepat Waktu', color: 'ontime', barColor: 'green', icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>` },
+      delayed: { label: 'Terlambat', color: 'delayed', barColor: 'amber', icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>` },
+      boarding: { label: 'Boarding', color: 'boarding', barColor: 'blue', icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>` },
+      cancel: { label: 'Dibatalkan', color: 'cancel', barColor: 'red', icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>` },
+    };
+
+    function renderStatus() {
+      const list = document.getElementById('trainStatusList');
+      list.innerHTML = '';
+
+      const now = nowMinutes();
+
+      let trains = ROUTES.map(r => {
+        const live = getTrainLiveData(r);
+        return { ...r, ...live };
+      });
+
+      trains.sort((a, b) => {
+        const aActive = a.pct > 0 && a.pct < 100;
+        const bActive = b.pct > 0 && b.pct < 100;
+        if (aActive && !bActive) return -1;
+        if (!aActive && bActive) return 1;
+        return timeToMinutes(a.dep) - timeToMinutes(b.dep);
+      });
+
+      if (currentFilter !== 'all') {
+        trains = trains.filter(t => t.status === currentFilter);
+      }
+
+      if (trains.length === 0) {
+        list.innerHTML = `<div class="status-empty">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M4 4h16c1.1 0 2 .9 2 2v8c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+        <path d="M8 8h8v4H8V8z"/>
+      </svg>
+      <p>Tidak ada kereta dengan status ini saat ini.</p>
+    </div>`;
+        return;
+      }
+
+      trains.forEach((t, i) => {
+        const meta = STATUS_META[t.status];
+        const isActive = t.pct > 0 && t.pct < 100;
+        const depMin = timeToMinutes(t.dep);
+        const isBoardingWindow = now >= depMin - 30 && now < depMin;
+
+        const delayStr = t.delayMin > 0
+          ? `<span class="delay-tag">+${t.delayMin} menit</span>`
+          : '';
+
+        const arrDisplay = t.status === 'delayed'
+          ? `${t.dep} - <span class="val amber">${t.effArrStr}</span>${delayStr}`
+          : `${t.dep} - ${t.arr}`;
+
+        const trainType = t.train.des('Express') ? 'Express' : 'Lokal';
+        const card = document.createElement('div');
+        card.className = 'train-card';
+        card.style.animationDelay = (i * 0.06) + 's';
+
+        card.innerHTML = `
+      <div class="train-card-top">
+        <div class="train-name-row">
+          <div class="train-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v8c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2zm0 2v8h16V6H4zm2 9h2v2H6v-2zm10 0h2v2h-2v-2zM8 8h8v4H8V8z"/>
+            </svg>
+          </div>
+          <div>
+            <div class="train-name">${t.train}</div>
+            <div class="train-type-tag">${trainType} · ${t.origin} → ${t.destination}</div>
+          </div>
+        </div>
+        <div class="status-badge ${meta.color}">
+          ${meta.icon} ${meta.label}
+        </div>
+      </div>
+
+      <div class="train-card-body">
+        <div class="info-cell">
+          <label>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="10" r="3"/><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>
+            Rute
+          </label>
+          <div class="val">${t.origin} → ${t.destination}</div>
+        </div>
+        <div class="info-cell">
+          <label>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+            Waktu
+          </label>
+          <div class="val">${t.dep} - ${t.status === 'delayed' ? `<span style="color:#D97706">${t.effArrStr}</span> <span style="color:#D97706;font-size:0.75rem;font-family:'DM Mono',monospace">+${t.delayMin}m</span>` : t.arr}</div>
+        </div>
+        <div class="info-cell">
+          <label>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            Lokasi Saat Ini
+          </label>
+          <div class="val ${t.status === 'cancel' ? 'red' : t.pct === 100 ? 'green' : 'blue'}">${t.locationLabel}</div>
+        </div>
+      </div>
+
+      <div class="progress-wrap">
+        <div class="progress-label">
+          <span>Progress Perjalanan</span>
+          <span class="pct">${t.status === 'cancel' ? '–' : t.pct + '%'}</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill ${meta.barColor} ${isActive ? 'active-shimmer' : ''}"
+               style="width:${t.status === 'cancel' ? 0 : t.pct}%"></div>
+        </div>
+        <div class="progress-stations">
+          ${t.waypoints.map(w => `<span>${w}</span>`).join('')}
+        </div>
+      </div>
+    `;
+
+        list.appendChild(card);
+      });
+
+      const now2 = new Date();
+      document.getElementById('lastUpdated').innerHTML = `
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+    Diperbarui ${now2.getHours().toString().padStart(2, '0')}:${now2.getMinutes().toString().padStart(2, '0')}:${now2.getSeconds().toString().padStart(2, '0')}
+  `;
+    }
+
+    function startCountdown() {
+      countdown = 30;
+      if (countdownTimer) clearInterval(countdownTimer);
+      countdownTimer = setInterval(() => {
+        countdown--;
+        document.getElementById('nextUpdateLabel').textContent =
+          `Pembaruan otomatis dalam ${countdown} detik`;
+        if (countdown <= 0) {
+          renderStatus();
+          countdown = 30;
+        }
+      }, 1000);
+    }
+
+    renderStatus();
+    startCountdown();
+  </script>
+</body>
+
+</html>

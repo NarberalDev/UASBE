@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rating & Review</title>
+
+    <link rel="stylesheet" href="/style/rating.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body>
+
+    <div class="rating-page">
+
+        <div class="page-header">
+            <h1>Rating & Review</h1>
+            <p>Bagikan pengalaman perjalanan Anda</p>
+        </div>
+
+        <div class="card">
+            <h2>Detail Perjalanan</h2>
+
+            <div class="detail-grid">
+                <div class="label">Tiket ID</div>
+                <div class="value" id="ticketId">-</div>
+
+                <div class="label">Rute</div>
+                <div class="value" id="route">-</div>
+
+                <div class="label">Kereta</div>
+                <div class="value" id="train">-</div>
+
+                <div class="label">Tanggal</div>
+                <div class="value" id="date">-</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Berikan Penilaian</h2>
+
+            <div class="center-box">
+
+                <p>Bagaimana pengalaman Anda dengan perjalanan ini?</p>
+
+                <div class="stars" id="stars">
+                    <i class="fa-regular fa-star" data-value="1"></i>
+                    <i class="fa-regular fa-star" data-value="2"></i>
+                    <i class="fa-regular fa-star" data-value="3"></i>
+                    <i class="fa-regular fa-star" data-value="4"></i>
+                    <i class="fa-regular fa-star" data-value="5"></i>
+                </div>
+
+                <h3 id="ratingText">
+                    Pilih bintang untuk memberi rating
+                </h3>
+
+                <textarea placeholder="Tulis ulasan Anda..." id="reviewText"></textarea>
+
+                <button onclick="submitReview()">
+                    Kirim Review
+                </button>
+
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        let selectedRating = 0;
+        let currentTicketId = null;
+
+        const stars = document.querySelectorAll(".stars i");
+        const ratingText = document.getElementById("ratingText");
+
+        window.onload = async function () {
+
+            const params = new URLSearchParams(window.location.search);
+            let ticketId = params.get("ticket_id");
+
+            if (!ticketId) {
+                ticketId = localStorage.getItem("last_ticket_id");
+            }
+
+            if (!ticketId) {
+                alert("Ticket ID tidak ditemukan");
+                return;
+            }
+
+            currentTicketId = ticketId;
+
+            try {
+                const res = await fetch(`http://localhost:3000/ticket/${ticketId}`);
+                const data = await res.json();
+
+                if (!res.ok || data.message) {
+                    alert(data.message || "Tiket tidak ditemukan");
+                    return;
+                }
+
+                document.getElementById("ticketId").innerText = data.idtickets;
+                document.getElementById("route").innerText = data.origin + " → " + data.destination;
+                document.getElementById("train").innerText = data.train_name;
+                document.getElementById("date").innerText = data.date;
+
+            } catch (err) {
+                console.error(err);
+                alert("Gagal mengambil data tiket");
+            }
+        };
+
+
+        stars.forEach(star => {
+
+            star.addEventListener("click", function () {
+                selectedRating = this.dataset.value;
+                updateStars();
+            });
+
+            star.addEventListener("mouseover", function () {
+                hoverStars(this.dataset.value);
+            });
+
+            star.addEventListener("mouseleave", function () {
+                updateStars();
+            });
+
+        });
+
+        function hoverStars(value) {
+            stars.forEach(star => {
+                if (star.dataset.value <= value) {
+                    star.className = "fa-solid fa-star active";
+                } else {
+                    star.className = "fa-regular fa-star";
+                }
+            });
+        }
+
+        function updateStars() {
+            stars.forEach(star => {
+                if (star.dataset.value <= selectedRating) {
+                    star.className = "fa-solid fa-star active";
+                } else {
+                    star.className = "fa-regular fa-star";
+                }
+            });
+
+            const text = ["", "Buruk", "Cukup", "Lumayan", "Bagus", "Sangat Memuaskan"];
+            ratingText.innerText = text[selectedRating] || "Pilih bintang untuk memberi rating";
+        }
+
+        async function submitReview() {
+
+            const review = document.getElementById("reviewText").value;
+            const userId = localStorage.getItem("user_id");
+
+            if (!currentTicketId) {
+                alert("Ticket ID tidak valid");
+                return;
+            }
+
+            if (!userId) {
+                alert("User belum login");
+                return;
+            }
+
+            if (selectedRating == 0) {
+                alert("Silakan pilih rating dulu.");
+                return;
+            }
+
+            try {
+                const res = await fetch("http://localhost:3000/review", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        user_id: userId,
+                        ticket_id: currentTicketId,
+                        rating: selectedRating,
+                        review: review
+                    })
+                });
+
+                const data = await res.json();
+
+                if (!res.ok) {
+                    alert(data.message || "Gagal kirim review");
+                    return;
+                }
+
+                alert("Review berhasil dikirim");
+                window.location.href = "ticket.html";
+
+            } catch (err) {
+                console.error(err);
+                alert("Gagal kirim review");
+            }
+        }
+    </script>
+
+</body>
+
+</html>

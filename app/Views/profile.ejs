@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile Saya</title>
+    <link rel="stylesheet" href="/style/profile.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body>
+
+    <div class="profile-container">
+
+        <div class="page-header">
+            <h1>Profile Saya</h1>
+            <p>Kelola informasi profil Anda</p>
+        </div>
+
+        <div class="card">
+            <div class="card-top">
+                <h2>Informasi Pribadi</h2>
+
+                <button class="edit-btn" onclick="toggleEdit()">
+                    <i class="fa-solid fa-pen"></i> Edit
+                </button>
+            </div>
+
+            <div class="avatar-box">
+                <div class="avatar" id="avatarPreview">U</div>
+            </div>
+
+            <div class="form-group">
+                <label>Nama Lengkap</label>
+                <div class="input-box">
+                    <i class="fa-regular fa-user"></i>
+                    <input type="text" id="name" disabled>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Email</label>
+                <div class="input-box">
+                    <i class="fa-regular fa-envelope"></i>
+                    <input type="email" id="email" disabled>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Nomor Telepon</label>
+                <div class="input-box">
+                    <i class="fa-solid fa-phone"></i>
+                    <input type="text" id="phone" disabled>
+                </div>
+            </div>
+
+            <button class="save-btn" id="saveBtn" onclick="saveProfile()">
+                Simpan Perubahan
+            </button>
+        </div>
+
+        <div class="card">
+            <h2>Keamanan</h2>
+
+            <div class="security-item">
+                <div>
+                    <h3>Password</h3>
+                    <p>Ubah password akun Anda</p>
+                </div>
+                <button onclick="changePassword()">Ubah</button>
+            </div>
+
+            <div class="security-item">
+                <div>
+                    <h3>Status Akun</h3>
+                    <p>Login aktif</p>
+                </div>
+                <span class="verified">Aktif</span>
+            </div>
+
+            <div class="security-item">
+                <div>
+                    <h3>Logout</h3>
+                    <p>Keluar dari akun</p>
+                </div>
+                <button onclick="logout()">Logout</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        let editMode = false;
+        window.onload = async function () {
+
+            const userId = localStorage.getItem("user_id");
+
+            if (!userId) {
+                window.location.href = "login.html";
+                return;
+            }
+
+            try {
+                const res = await fetch(`http://localhost:3000/user/${userId}`);
+                const data = await res.json();
+
+                document.getElementById("name").value = data.nama;
+                document.getElementById("email").value = data.email;
+                document.getElementById("phone").value = data.phone || "";
+
+                document.getElementById("avatarPreview").innerText =
+                    data.nama.charAt(0).toUpperCase();
+
+            } catch (err) {
+                alert("Gagal mengambil data user");
+                console.log(err);
+            }
+        };
+
+        function toggleEdit() {
+            editMode = !editMode;
+
+            document.getElementById("name").disabled = !editMode;
+            document.getElementById("email").disabled = !editMode;
+            document.getElementById("phone").disabled = !editMode;
+
+            document.getElementById("saveBtn").style.display =
+                editMode ? "block" : "none";
+        };
+
+        async function saveProfile() {
+
+            const userId = localStorage.getItem("user_id");
+
+            const nama = document.getElementById("name").value;
+            const email = document.getElementById("email").value;
+            const phone = document.getElementById("phone").value;
+
+            try {
+                const res = await fetch(`http://localhost:3000/user/${userId}`, {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        nama,
+                        email,
+                        phone
+                    })
+                });
+
+                const data = await res.json();
+
+                alert(data.message);
+
+                document.getElementById("avatarPreview").innerText =
+                    nama.charAt(0).toUpperCase();
+
+                toggleEdit();
+
+            } catch (err) {
+                alert("Gagal update profile");
+            }
+        }
+
+        function changePassword() {
+            alert("Fitur ubah password segera tersedia");
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = "login.html";
+        }
+    </script>
+
+</body>
+
+</html>

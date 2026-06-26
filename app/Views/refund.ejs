@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Refund Tiket — KAI</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@300;400;500;600&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --orange: #E86A2A;
+      --orange-light: #F59D6E;
+      --deep: #1A1A2E;
+      --slate: #2D2D44;
+      --muted: #6B7280;
+      --line: #E5E7EB;
+      --bg: #F8F7F4;
+      --white: #FFFFFF;
+      --green: #16A34A;
+      --red: #DC2626;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--deep);
+      min-height: 100vh;
+    }
+
+    .shell {
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      background: linear-gradient(160deg, #1A1A2E 0%, #3B2A4A 50%, #E86A2A 100%);
+      padding: 48px 36px;
+      display: flex;
+      flex-direction: column;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+    }
+
+    .sidebar .brand {
+      margin-bottom: auto;
+    }
+
+    .sidebar .brand-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 52px;
+      color: #fff;
+      letter-spacing: -2px;
+      line-height: 1;
+    }
+
+    .sidebar .brand-tagline {
+      color: rgba(255, 255, 255, .55);
+      font-size: 13px;
+      font-weight: 300;
+      margin-top: 8px;
+      line-height: 1.6;
+    }
+
+    .sidebar-info {
+      background: rgba(255, 255, 255, .08);
+      border: 1px solid rgba(255, 255, 255, .12);
+      border-radius: 16px;
+      padding: 24px;
+      margin-top: 40px;
+    }
+
+    .sidebar-info h3 {
+      color: #fff;
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .sidebar-info h3 i {
+      color: var(--orange-light);
+    }
+
+    .policy-item {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 12px;
+      align-items: flex-start;
+    }
+
+    .policy-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--orange-light);
+      margin-top: 7px;
+      flex-shrink: 0;
+    }
+
+    .policy-item p {
+      color: rgba(255, 255, 255, .7);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .policy-item strong {
+      color: #fff;
+    }
+
+    .main {
+      padding: 48px 52px;
+      max-width: 680px;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 14px;
+      text-decoration: none;
+      margin-bottom: 36px;
+      transition: color .2s;
+    }
+
+    .back-link:hover {
+      color: var(--orange);
+    }
+
+    .page-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 36px;
+      line-height: 1.15;
+      margin-bottom: 6px;
+    }
+
+    .page-sub {
+      color: var(--muted);
+      font-size: 15px;
+      margin-bottom: 40px;
+    }
+
+    .steps {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      margin-bottom: 40px;
+    }
+
+    .step {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--muted);
+    }
+
+    .step.active {
+      color: var(--orange);
+    }
+
+    .step.done {
+      color: var(--green);
+    }
+
+    .step-num {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 2px solid currentColor;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .step.done .step-num {
+      background: var(--green);
+      border-color: var(--green);
+      color: #fff;
+    }
+
+    .step.active .step-num {
+      background: var(--orange);
+      border-color: var(--orange);
+      color: #fff;
+    }
+
+    .step-line {
+      flex: 1;
+      height: 1px;
+      background: var(--line);
+      margin: 0 12px;
+    }
+
+    .section {
+      margin-bottom: 32px;
+    }
+
+    .section-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+
+    .ticket-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .ticket-option {
+      display: block;
+      cursor: pointer;
+    }
+
+    .ticket-option input[type="radio"] {
+      display: none;
+    }
+
+    .ticket-card {
+      border: 2px solid var(--line);
+      border-radius: 16px;
+      padding: 20px 24px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      background: var(--white);
+      transition: all .25s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .ticket-card::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: var(--orange);
+      transform: scaleY(0);
+      transition: transform .25s;
+      transform-origin: center;
+    }
+
+    .ticket-option input:checked+.ticket-card {
+      border-color: var(--orange);
+      background: #FFF8F4;
+    }
+
+    .ticket-option input:checked+.ticket-card::before {
+      transform: scaleY(1);
+    }
+
+    .ticket-card:hover {
+      border-color: var(--orange-light);
+    }
+
+    .ticket-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--orange), var(--orange-light));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .ticket-info {
+      flex: 1;
+    }
+
+    .ticket-route {
+      font-weight: 600;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+
+    .ticket-route i {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .ticket-meta {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .ticket-meta span {
+      margin-right: 12px;
+    }
+
+    .ticket-price {
+      text-align: right;
+    }
+
+    .refund-label {
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 2px;
+    }
+
+    .refund-amount {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--green);
+    }
+
+    .ticket-id {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 2px;
+      font-family: monospace;
+    }
+
+    .no-ticket {
+      text-align: center;
+      padding: 40px;
+      color: var(--muted);
+      background: var(--white);
+      border-radius: 16px;
+      border: 2px dashed var(--line);
+    }
+
+    .no-ticket i {
+      font-size: 32px;
+      margin-bottom: 12px;
+      display: block;
+    }
+
+    .reason-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .reason-opt {
+      display: block;
+      cursor: pointer;
+    }
+
+    .reason-opt input[type="radio"] {
+      display: none;
+    }
+
+    .reason-box {
+      border: 2px solid var(--line);
+      border-radius: 12px;
+      padding: 14px 16px;
+      font-size: 14px;
+      font-weight: 500;
+      background: var(--white);
+      transition: all .2s;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--deep);
+    }
+
+    .reason-box i {
+      color: var(--muted);
+      font-size: 16px;
+    }
+
+    .reason-opt input:checked+.reason-box {
+      border-color: var(--orange);
+      background: #FFF8F4;
+      color: var(--orange);
+    }
+
+    .reason-opt input:checked+.reason-box i {
+      color: var(--orange);
+    }
+
+    .reason-box:hover {
+      border-color: var(--orange-light);
+    }
+
+    textarea {
+      width: 100%;
+      border: 2px solid var(--line);
+      border-radius: 12px;
+      padding: 14px 16px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      resize: vertical;
+      min-height: 90px;
+      outline: none;
+      transition: border-color .2s;
+      background: var(--white);
+      display: none;
+      color: var(--deep);
+    }
+
+    textarea:focus {
+      border-color: var(--orange);
+    }
+
+    textarea.visible {
+      display: block;
+    }
+
+    .summary-box {
+      background: var(--white);
+      border: 2px solid var(--line);
+      border-radius: 16px;
+      padding: 24px;
+      display: none;
+    }
+
+    .summary-box.show {
+      display: block;
+    }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 14px;
+      margin-bottom: 10px;
+      color: var(--muted);
+    }
+
+    .summary-row span:last-child {
+      color: var(--deep);
+      font-weight: 500;
+    }
+
+    .summary-divider {
+      height: 1px;
+      background: var(--line);
+      margin: 14px 0;
+    }
+
+    .summary-total {
+      display: flex;
+      justify-content: space-between;
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .summary-total span:last-child {
+      color: var(--green);
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 12px;
+      margin-top: 36px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 16px;
+      border-radius: 12px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all .2s;
+    }
+
+    .btn-ghost {
+      background: transparent;
+      border: 2px solid var(--line);
+      color: var(--muted);
+    }
+
+    .btn-ghost:hover {
+      border-color: var(--deep);
+      color: var(--deep);
+    }
+
+    .btn-primary {
+      background: var(--orange);
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background: #D4601F;
+      transform: translateY(-1px);
+    }
+
+    .btn-primary:disabled {
+      background: #D1D5DB;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, .5);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .3s;
+    }
+
+    .modal-overlay.open {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .modal {
+      background: var(--white);
+      border-radius: 24px;
+      padding: 40px;
+      max-width: 420px;
+      width: 90%;
+      text-align: center;
+      transform: scale(.95);
+      transition: transform .3s;
+    }
+
+    .modal-overlay.open .modal {
+      transform: scale(1);
+    }
+
+    .modal-icon {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      font-size: 32px;
+    }
+
+    .modal-icon.success {
+      background: #DCFCE7;
+      color: var(--green);
+    }
+
+    .modal-icon.warn {
+      background: #FEF3C7;
+      color: #D97706;
+    }
+
+    .modal h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+
+    .modal p {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+
+    .modal-amount {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--green);
+      margin-bottom: 6px;
+    }
+
+    .modal-note {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 24px;
+    }
+
+    .modal .btn {
+      width: 100%;
+    }
+
+    .skeleton {
+      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.4s infinite;
+      border-radius: 8px;
+    }
+
+    @keyframes shimmer {
+      0% {
+        background-position: 200% 0;
+      }
+
+      100% {
+        background-position: -200% 0;
+      }
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 32px;
+      right: 32px;
+      background: var(--deep);
+      color: #fff;
+      padding: 14px 20px;
+      border-radius: 12px;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transform: translateY(80px);
+      opacity: 0;
+      transition: all .3s;
+      z-index: 1000;
+    }
+
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .toast.error {
+      background: var(--red);
+    }
+
+    @media (max-width: 768px) {
+      .shell {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        display: none;
+      }
+
+      .main {
+        padding: 28px 20px;
+        max-width: 100%;
+      }
+
+      .reason-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="shell">
+
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-logo">KAI</div>
+        <div class="brand-tagline">Semakin Melayani<br>Kereta Api Indonesia</div>
+      </div>
+
+      <div class="sidebar-info">
+        <h3><i class="fa-solid fa-shield-halved"></i> Kebijakan Refund</h3>
+        <div class="policy-item">
+          <div class="policy-dot"></div>
+          <p>Pengajuan <strong>minimal 24 jam</strong> sebelum keberangkatan</p>
+        </div>
+        <div class="policy-item">
+          <div class="policy-dot"></div>
+          <p>Potongan biaya administrasi <strong>10%</strong> dari harga tiket</p>
+        </div>
+        <div class="policy-item">
+          <div class="policy-dot"></div>
+          <p>Dana dikembalikan dalam <strong>3–5 hari kerja</strong></p>
+        </div>
+        <div class="policy-item">
+          <div class="policy-dot"></div>
+          <p>Hanya untuk tiket berstatus <strong>confirmed / paid</strong></p>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <a href="ticket.html" class="back-link">
+        <i class="fa-solid fa-arrow-left"></i> Kembali ke Tiket Saya
+      </a>
+
+      <h1 class="page-title">Pengajuan<br>Refund</h1>
+      <p class="page-sub">Batalkan tiket dan ajukan pengembalian dana</p>
+
+      <div class="steps">
+        <div class="step active" id="step1">
+          <div class="step-num">1</div>
+          <span>Pilih Tiket</span>
+        </div>
+        <div class="step-line"></div>
+        <div class="step" id="step2">
+          <div class="step-num">2</div>
+          <span>Alasan</span>
+        </div>
+        <div class="step-line"></div>
+        <div class="step" id="step3">
+          <div class="step-num">3</div>
+          <span>Konfirmasi</span>
+        </div>
+      </div>
+
+      <div class="section" id="sectionTicket">
+        <div class="section-label">Tiket yang dapat direfund</div>
+        <div class="ticket-list" id="ticketList">
+          <div style="height:88px;border-radius:16px;" class="skeleton"></div>
+          <div style="height:88px;border-radius:16px;" class="skeleton"></div>
+        </div>
+      </div>
+
+      <div class="section" id="sectionReason" style="display:none">
+        <div class="section-label">Alasan pembatalan</div>
+        <div class="reason-grid">
+          <label class="reason-opt">
+            <input type="radio" name="reason" value="Berubah Rencana">
+            <div class="reason-box"><i class="fa-solid fa-calendar-xmark"></i> Berubah Rencana</div>
+          </label>
+          <label class="reason-opt">
+            <input type="radio" name="reason" value="Keadaan Darurat">
+            <div class="reason-box"><i class="fa-solid fa-triangle-exclamation"></i> Keadaan Darurat</div>
+          </label>
+          <label class="reason-opt">
+            <input type="radio" name="reason" value="Jadwal Bentrok">
+            <div class="reason-box"><i class="fa-solid fa-clock"></i> Jadwal Bentrok</div>
+          </label>
+          <label class="reason-opt">
+            <input type="radio" name="reason" value="Alasan Kesehatan">
+            <div class="reason-box"><i class="fa-solid fa-heart-pulse"></i> Alasan Kesehatan</div>
+          </label>
+          <label class="reason-opt">
+            <input type="radio" name="reason" value="Lainnya">
+            <div class="reason-box"><i class="fa-solid fa-ellipsis"></i> Lainnya</div>
+          </label>
+        </div>
+        <textarea id="otherReason" placeholder="Jelaskan alasan Anda lebih detail..."></textarea>
+      </div>
+
+      <div class="section" id="sectionSummary">
+        <div class="summary-box" id="summaryBox">
+          <div class="summary-row"><span>Rute</span><span id="summRoute">–</span></div>
+          <div class="summary-row"><span>Tanggal</span><span id="summDate">–</span></div>
+          <div class="summary-row"><span>Kereta</span><span id="summTrain">–</span></div>
+          <div class="summary-row"><span>Penumpang</span><span id="summPax">–</span></div>
+          <div class="summary-row"><span>Harga Tiket</span><span id="summPrice">–</span></div>
+          <div class="summary-row"><span>Potongan Administrasi (10%)</span><span id="summFee"
+              style="color:var(--red)">–</span></div>
+          <div class="summary-divider"></div>
+          <div class="summary-total">
+            <span>Dana Kembali</span>
+            <span id="summRefund">–</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="btn-group">
+        <button class="btn btn-ghost" onclick="window.location.href='ticket.html'">Batal</button>
+        <button class="btn btn-primary" id="mainBtn" onclick="handleNext()">Lanjutkan</button>
+      </div>
+    </main>
+  </div>
+
+  <div class="modal-overlay" id="confirmModal">
+    <div class="modal">
+      <div class="modal-icon warn"><i class="fa-solid fa-rotate-left"></i></div>
+      <h2>Yakin Refund?</h2>
+      <p>Tindakan ini tidak dapat dibatalkan. Tiket akan segera dinonaktifkan.</p>
+      <div class="modal-amount" id="modalAmount">–</div>
+      <div class="modal-note">Dana kembali setelah potongan 10%</div>
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-ghost" onclick="closeModal()">Kembali</button>
+        <button class="btn btn-primary" id="confirmBtn" onclick="submitRefund()">Ya, Refund</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="successModal">
+    <div class="modal">
+      <div class="modal-icon success"><i class="fa-solid fa-check"></i></div>
+      <h2>Refund Diajukan!</h2>
+      <p>Permintaan refund berhasil. Dana akan dikembalikan ke metode pembayaran asal.</p>
+      <div class="modal-amount" id="successAmount">–</div>
+      <div class="modal-note">Estimasi 3–5 hari kerja</div>
+      <button class="btn btn-primary" onclick="window.location.href='ticket.html'">Kembali ke Tiket</button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const USER_ID = localStorage.getItem('user_id') || 1; // fallback untuk testing
+    let tickets = [];
+    let selectedTicket = null;
+    let currentStep = 1;
+
+    async function init() {
+      await loadTickets();
+      bindReasonChange();
+    }
+
+    async function loadTickets() {
+      try {
+        const res = await fetch(`/ticket/user/${USER_ID}`);
+        tickets = await res.json();
+        renderTickets();
+      } catch (e) {
+        showToast('Gagal memuat tiket', 'error');
+        document.getElementById('ticketList').innerHTML = `
+      <div class="no-ticket">
+        <i class="fa-solid fa-ticket-simple"></i>
+        <p>Tidak ada tiket yang dapat direfund</p>
+      </div>`;
+      }
+    }
+
+    function renderTickets() {
+      const list = document.getElementById('ticketList');
+      if (!tickets.length) {
+        list.innerHTML = `
+      <div class="no-ticket">
+        <i class="fa-solid fa-ticket-simple"></i>
+        <p>Tidak ada tiket yang dapat direfund saat ini</p>
+      </div>`;
+        return;
+      }
+
+      list.innerHTML = tickets.map(t => {
+        const refund = Math.floor(t.price * t.passengers * 0.9);
+        const dateStr = new Date(t.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+        return `
+    <label class="ticket-option">
+      <input type="radio" name="ticket" value="${t.idtickets}" onchange="onTicketSelect(${t.idtickets})">
+      <div class="ticket-card">
+        <div class="ticket-icon"><i class="fa-solid fa-train"></i></div>
+        <div class="ticket-info">
+          <div class="ticket-route">
+            ${t.origin} <i class="fa-solid fa-arrow-right"></i> ${t.destination}
+          </div>
+          <div class="ticket-meta">
+            <span><i class="fa-regular fa-calendar"></i> ${dateStr}</span>
+            <span><i class="fa-regular fa-clock"></i> ${t.departure_time.slice(0, 5)}</span>
+            <span>${t.train_name}</span>
+          </div>
+        </div>
+        <div class="ticket-price">
+          <div class="refund-label">Dana kembali</div>
+          <div class="refund-amount">${formatRp(refund)}</div>
+          <div class="ticket-id">#${String(t.idtickets).padStart(10, '0')}</div>
+        </div>
+      </div>
+    </label>`;
+      }).join('');
+    }
+
+    function onTicketSelect(id) {
+      selectedTicket = tickets.find(t => t.idtickets === id);
+      updateStep(1);
+    }
+
+    function bindReasonChange() {
+      document.querySelectorAll('input[name="reason"]').forEach(r => {
+        r.addEventListener('change', function () {
+          const ta = document.getElementById('otherReason');
+          if (this.value === 'Lainnya') ta.classList.add('visible');
+          else ta.classList.remove('visible');
+          updateSummary();
+        });
+      });
+    }
+
+    function handleNext() {
+      if (currentStep === 1) {
+        if (!selectedTicket) { showToast('Pilih tiket terlebih dahulu'); return; }
+        goStep(2);
+      } else if (currentStep === 2) {
+        const reason = document.querySelector('input[name="reason"]:checked');
+        if (!reason) { showToast('Pilih alasan refund'); return; }
+        if (reason.value === 'Lainnya' && !document.getElementById('otherReason').value.trim()) {
+          showToast('Tuliskan alasan Anda'); return;
+        }
+        updateSummary();
+        goStep(3);
+      } else if (currentStep === 3) {
+        openModal();
+      }
+    }
+
+    function goStep(n) {
+      currentStep = n;
+
+      for (let i = 1; i <= 3; i++) {
+        const el = document.getElementById(`step${i}`);
+        el.className = 'step' + (i < n ? ' done' : i === n ? ' active' : '');
+        el.querySelector('.step-num').innerHTML = i < n ? '<i class="fa-solid fa-check" style="font-size:11px"></i>' : i;
+      }
+
+      document.getElementById('sectionTicket').style.display = n === 1 ? 'block' : 'none';
+      document.getElementById('sectionReason').style.display = n === 2 ? 'block' : 'none';
+
+      const summBox = document.getElementById('summaryBox');
+      summBox.style.display = n === 3 ? 'block' : 'none';
+
+      const btn = document.getElementById('mainBtn');
+      btn.textContent = n === 3 ? 'Ajukan Refund' : 'Lanjutkan';
+    }
+
+    function updateSummary() {
+      if (!selectedTicket) return;
+      const t = selectedTicket;
+      const price = t.price * t.passengers;
+      const fee = Math.floor(price * 0.1);
+      const refund = price - fee;
+      const dateStr = new Date(t.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+
+      document.getElementById('summRoute').textContent = `${t.origin} → ${t.destination}`;
+      document.getElementById('summDate').textContent = dateStr;
+      document.getElementById('summTrain').textContent = t.train_name;
+      document.getElementById('summPax').textContent = `${t.passengers} orang`;
+      document.getElementById('summPrice').textContent = formatRp(price);
+      document.getElementById('summFee').textContent = `- ${formatRp(fee)}`;
+      document.getElementById('summRefund').textContent = formatRp(refund);
+      document.getElementById('modalAmount').textContent = formatRp(refund);
+      document.getElementById('successAmount').textContent = formatRp(refund);
+    }
+
+    function updateStep(n) { /* visual only */ }
+
+    function openModal() {
+      document.getElementById('confirmModal').classList.add('open');
+    }
+    function closeModal() {
+      document.getElementById('confirmModal').classList.remove('open');
+    }
+
+    async function submitRefund() {
+      const btn = document.getElementById('confirmBtn');
+      btn.disabled = true;
+      btn.textContent = 'Memproses...';
+
+      const reason = document.querySelector('input[name="reason"]:checked').value;
+      const finalReason = reason === 'Lainnya'
+        ? document.getElementById('otherReason').value.trim()
+        : reason;
+
+      try {
+        const res = await fetch('/refund', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            ticket_id: selectedTicket.idtickets,
+            user_id: USER_ID,
+            reason: finalReason
+          })
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+          showToast(data.message || 'Gagal mengajukan refund', 'error');
+          btn.disabled = false;
+          btn.textContent = 'Ya, Refund';
+          return;
+        }
+
+        document.getElementById('confirmModal').classList.remove('open');
+        document.getElementById('successModal').classList.add('open');
+
+      } catch (e) {
+        showToast('Terjadi kesalahan. Coba lagi.', 'error');
+        btn.disabled = false;
+        btn.textContent = 'Ya, Refund';
+      }
+    }
+
+    function formatRp(n) {
+      return 'Rp ' + n.toLocaleString('id-ID');
+    }
+
+    function showToast(msg, type = '') {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className = 'toast show' + (type === 'error' ? ' error' : '');
+      setTimeout(() => t.className = 'toast', 3000);
+    }
+
+    init();
+  </script>
+</body>
+
+</html>
